@@ -1,0 +1,179 @@
+let movies = [
+    {
+        title: "Money Heist",
+        type: "series",
+        banner: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800",
+        videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
+        episodes: ["Episode 1", "Episode 2", "Episode 3"]
+    },
+    {
+        title: "Standalone Action",
+        type: "non-part",
+        banner: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800",
+        videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
+        episodes: []
+    }
+];
+
+let hideTimeout;
+const videoPlayer = document.getElementById("videoPlayer");
+const videoControls = document.getElementById("videoControls");
+
+// Switch Tabs
+function switchTab(tabName) {
+    document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+    if(tabName === 'home') {
+        document.getElementById('home-view').style.display = 'block';
+        renderHome();
+    } else if(tabName === 'search') {
+        document.getElementById('search-view').style.display = 'block';
+        renderSearchGrid(movies);
+    } else if(tabName === 'upload') {
+        document.getElementById('upload-view').style.display = 'block';
+    }
+}
+
+// Render Home Grid & Hero
+function renderHome() {
+    const grid = document.getElementById('movieGrid');
+    grid.innerHTML = '';
+    if(movies.length > 0) {
+        document.getElementById('heroBanner').style.backgroundImage = `url(${movies[0].banner})`;
+        document.getElementById('heroTitle').innerText = movies[0].title;
+    }
+    movies.forEach((movie, index) => {
+        grid.innerHTML += `
+            <div class="movie-card" onclick="openMovie(${index})">
+                <img src="${movie.banner}" alt="${movie.title}">
+                <p>${movie.title}</p>
+            </div>
+        `;
+    });
+}
+
+// Open Movie Detail / Player
+function openMovie(index) {
+    const movie = movies[index];
+    document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+    document.getElementById('detail-view').style.display = 'flex';
+    
+    videoPlayer.src = movie.videoUrl;
+    videoPlayer.play();
+    setupControlsTimer();
+
+    // Render Episodes or No Found
+    const epList = document.getElementById('episodeList');
+    epList.innerHTML = '';
+    if(movie.type === 'series' && movie.episodes.length > 0) {
+        movie.episodes.forEach(ep => {
+            epList.innerHTML += `<div class="episode-item">${ep}</div>`;
+        });
+    } else {
+        epList.innerHTML = `<div class="no-found">No Found</div>`;
+    }
+}
+
+function closePlayer() {
+    videoPlayer.pause();
+    switchTab('home');
+}
+
+// Video Controls Auto-Hide (3 seconds)
+function setupControlsTimer() {
+    clearTimeout(hideTimeout);
+    videoControls.classList.remove('hidden');
+    hideTimeout = setTimeout(() => {
+        videoControls.classList.add('hidden');
+    }, 3000);
+}
+
+document.getElementById('playerWrapper').addEventListener('click', () => {
+    setupControlsTimer();
+});
+
+function togglePlayPause() {
+    if(videoPlayer.paused) {
+        videoPlayer.play();
+        document.getElementById('playPauseBtn').innerText = "⏸";
+    } else {
+        videoPlayer.pause();
+        document.getElementById('playPauseBtn').innerText = "▶";
+    }
+}
+
+function skipTime(value) {
+    videoPlayer.currentTime += value;
+}
+
+// Fullscreen Toggle
+function toggleFullscreen(isFull) {
+    const wrapper = document.getElementById('playerWrapper');
+    if(isFull) {
+        if(wrapper.requestFullscreen) wrapper.requestFullscreen();
+    } else {
+        if(document.exitFullscreen) document.exitFullscreen();
+    }
+}
+
+// Drawer slide up/down toggle
+function toggleDrawer() {
+    const drawer = document.getElementById('episodeDrawer');
+    drawer.style.transform = drawer.style.transform === 'translateY(-50%)' ? 'translateY(0)' : 'translateY(-50%)';
+}
+
+// Search Logic
+function handleSearch() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = movies.filter(m => m.title.toLowerCase().includes(query));
+    renderSearchGrid(filtered);
+}
+
+function renderSearchGrid(list) {
+    const grid = document.getElementById('searchResultGrid');
+    grid.innerHTML = '';
+    list.forEach((movie, index) => {
+        grid.innerHTML += `
+            <div class="movie-card" onclick="openMovie(${index})">
+                <img src="${movie.banner}" alt="${movie.title}">
+                <p>${movie.title}</p>
+            </div>
+        `;
+    });
+}
+
+// Upload & Auto Banner Logic
+function saveMovie() {
+    const title = document.getElementById('upTitle').value;
+    const type = document.getElementById('upType').value;
+    const videoUrl = document.getElementById('upVideoUrl').value;
+    const bannerFile = document.getElementById('upBannerFile').files[0];
+
+    if(!title || !videoUrl) {
+        alert("Please fill title and video URL!");
+        return;
+    }
+
+    let banner = "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800"; // Default Auto Banner
+
+    const reader = new FileReader();
+    if(bannerFile) {
+        reader.onload = function(e) {
+            addNewMovie(title, type, videoUrl, e.target.result);
+        };
+        reader.readAsDataURL(bannerFile);
+    } else {
+        addNewMovie(title, type, videoUrl, banner);
+    }
+}
+
+function addNewMovie(title, type, videoUrl, banner) {
+    const episodes = type === 'series' ? ["Episode 1", "Episode 2"] : [];
+    movies.push({ title, type, banner, videoUrl, episodes });
+    alert("Saved Successfully!");
+    switchTab('home');
+}
+
+// Initial Load
+renderHome();
