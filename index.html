@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iOS Netflix Movie App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="logo">🎬</div>
+            <button class="nav-btn active" onclick="switchTab('home')">🏠</button>
+            <button class="nav-btn" onclick="switchTab('search')">🔍</button>
+            <button class="nav-btn" onclick="switchTab('upload')">➕</button>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <!-- HOME VIEW -->
+            <section id="home-view" class="view active">
+                <div class="hero-banner" id="heroBanner">
+                    <div class="hero-info">
+                        <h1 id="heroTitle">Money Heist</h1>
+                        <div class="hero-buttons">
+                            <button class="btn-primary" onclick="playHeroMovie()">▶ Play</button>
+                            <button class="btn-secondary" onclick="downloadHeroMovie()">⬇ Download</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">Trending Now</div>
+                <div class="movie-grid" id="movieGrid"></div>
+            </section>
+
+            <!-- SEARCH VIEW -->
+            <section id="search-view" class="view" style="display: none;">
+                <div class="search-box-container">
+                    <input type="text" id="searchInput" placeholder="Search movies or series..." oninput="handleSearch()">
+                </div>
+                <div class="movie-grid" id="searchResultGrid"></div>
+            </section>
+
+            <!-- UPLOAD VIEW -->
+            <section id="upload-view" class="view" style="display: none;">
+                <div class="upload-form">
+                    <h2>Upload Movie / Series</h2>
+                    <input type="text" id="upTitle" placeholder="Movie Title">
+                    <select id="upType">
+                        <option value="non-part">Non-Part (Standalone)</option>
+                        <option value="series">Add Series (Parts/Seasons)</option>
+                    </select>
+                    <label>Banner Image (From Gallery):</label>
+                    <input type="file" id="upBannerFile" accept="image/*">
+                    <label>Video File (MP4/Direct Link):</label>
+                    <input type="text" id="upVideoUrl" placeholder="Video URL or File Link">
+                    <button class="btn-primary" onclick="saveMovie()">Save & Upload</button>
+                </div>
+            </section>
+
+            <!-- MOVIE DETAIL & PLAYER VIEW -->
+            <section id="detail-view" class="view" style="display: none;">
+                <div class="player-wrapper" id="playerWrapper">
+                    <video id="videoPlayer" src=""></video>
+                    
+                    <!-- Video Controls Overlay -->
+                    <div class="video-controls" id="videoControls">
+                        <div class="top-bar">
+                            <button onclick="closePlayer()">⬅ Back</button>
+                            <div class="fullscreen-btns">
+                                <button onclick="toggleFullscreen(true)">⛶ Full</button>
+                                <button onclick="toggleFullscreen(false)">🗗 Exit</button>
+                            </div>
+                        </div>
+                        <div class="center-controls">
+                            <button onclick="skipTime(-10)">⏪ 10s</button>
+                            <button id="playPauseBtn" onclick="togglePlayPause()">⏸</button>
+                            <button onclick="skipTime(10)">10s ⏩</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Episodes / Details Bottom Drawer -->
+                <div class="drawer" id="episodeDrawer">
+                    <div class="drawer-handle" onclick="toggleDrawer()"></div>
+                    <h3>Episodes / Parts</h3>
+                    <div id="episodeList" class="episode-list">
+                        <!-- Dynamic Episodes or No Found -->
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
